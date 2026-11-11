@@ -14,15 +14,27 @@ from sklearn.linear_model import LinearRegression
 lr = LinearRegression()
 lr.fit(X_train, y_train)
 print("MLR Coefficients:", lr.coef_)
-print("MLR Predictions:", lr.predict(X_test.head()))
 
 # Principal Component Regression (PCR)
 from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
+
+scaler = StandardScaler()
+X_train_scale = scaler.fit_transform(X_train)
+X_test_scale = scaler.transform(X_test)
+
+# Determine number of principal components to use
 pca = PCA()
-pca.fit(X_train)
-X_train_pca = pca.transform(X_train)
-X_test_pca = pca.transform(X_test)
+pca.fit(X_train_scale)
+print("Eigenvalues:", pca.explained_variance_)
+print("Percent of eigenvalue:", pca.explained_variance_ratio_)
+print("Cumulative percent of eigenvalue:", pca.explained_variance_ratio_.cumsum())
+
+pca = PCA(n_components=5)  # Choose number of components based >95% cumulative percent of eigenvalue
+pca.fit(X_train_scale)
+X_train_pca = pca.transform(X_train_scale)
+X_test_pca = pca.transform(X_test_scale)
+
 lr_pcr = LinearRegression()
 lr_pcr.fit(X_train_pca, y_train)
 print("PCR Coefficients:", lr_pcr.coef_)
-print("PCR Predictions:", lr_pcr.predict(X_test_pca[:5]))
